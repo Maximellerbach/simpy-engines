@@ -3,8 +3,8 @@ import numba
 import threading
 import time
 
-from solid import solid
-from space import space
+from solid import *
+from space import *
 from graphical_engine import Graphical
 
 class Physical():
@@ -15,7 +15,7 @@ class Physical():
         self.sleep_time = dsleep
         self.space = space
 
-    def process_Force(self, obj, F, dt):
+    def apply_Force(self, obj, F, dt):
         mass = obj.state[2]
         dvx = F[0]*dt/mass*self.space.scale
         dvy = F[1]*dt/mass*self.space.scale
@@ -25,33 +25,31 @@ class Physical():
         obj.state[0][0] += obj.state[1][0]*dt
         obj.state[0][1] += obj.state[1][1]*dt
 
-    def process_gravity(self):
+    def attraction(self, obj, attr_force = 9.87, u=[0, -1]):
+        return np.multiply(u, attr_force*obj.state[2])
+
+
+    def simulate_gravity(self):
         while(True): # simulation Loop
             st = time.time()
             time.sleep(self.sleep_time)
 
             for obj in self.objects:
-            
-                if obj.state[0][1]>10:
-                    dt = time.time()-st
+                dt = time.time()-st
 
-                    fx = 0
-                    fy = -self.gravity*obj.state[2]
-
-                    self.process_Force(obj, [fx,fy], dt)
-
-
+                F = self.attraction(obj, attr_force=self.gravity)
+                self.apply_Force(obj, F, dt)
 
 
 if __name__ == "__main__":
-    S = space(size=(128, 512))
-    box = solid(pos=[64, 500], ini_v=[0, 0], size=10, mass=100, color=(254, 129, 12))
-    box2 = solid(pos=[64, 500], ini_v=[7, 10], size=10, mass=1, color=(12, 129, 254))
+    S = space(bounds=(-128, 256, 0, 512))
+    box = solid(S, pos=[64, 500], ini_v=[0, 0], size=10, mass=100, color=(254, 129, 12))
+    box2 = solid(S, pos=[64, 500], ini_v=[7, -1], size=10, mass=1, color=(12, 129, 254))
 
-    P = Physical(S, objects=[box, box2], gravity=9, dsleep=1E-3)
+    P = Physical(S, objects=[box, box2], gravity=9, dsleep=1E-5)
     G = Graphical(S, objects=P.objects)
 
-    T = threading.Thread(target=P.process_gravity)
+    T = threading.Thread(target=P.simulate_gravity)
     T.start()
     while(True): # Display loop
         G.draw()
