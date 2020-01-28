@@ -14,12 +14,15 @@ class solid():
             poly = resize_poly(poly, size)
 
         self.poly = poly
-        self.prev_npoly = self.translate_poly
+        self.size = size
 
         pos = adjust_pos(pos, [-self.space_bounds[0], -self.space_bounds[2]])
         self.state = [pos, ini_v, mass] # [[x, y], [vx, vy], m]
         self.color = color
         self.rigid = rigid
+
+        self.dpos = [0, 0]
+
 
     def get_maxp(self):
         return np.max(self.poly, axis=0)
