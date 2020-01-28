@@ -34,7 +34,7 @@ class Physical():
         return [0, -1*attr_force*obj.state[2]]
 
     def friction(self, obj, fric_res = 0.1, v = [0, 0]):
-        return [1/2*obj.state[1][0]*fric_res*obj.size, 1/2*obj.state[1][1]*fric_res*obj.size]
+        return [-1/2*obj.state[1][0]*fric_res*obj.size, -1/2*obj.state[1][1]*fric_res*obj.size]
 
     # TODO: collision + rigid bodys
 
@@ -47,7 +47,7 @@ class Physical():
 
                 F = np.zeros(2)
                 F += self.attraction(obj, attr_force=self.gravity)
-                F -= self.friction(obj, fric_res=0.1)
+                F += self.friction(obj, fric_res=0.1)
 
                 self.apply_Force(obj, F, self.sleep_time)
 
