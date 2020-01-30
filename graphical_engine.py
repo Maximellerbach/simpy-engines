@@ -15,8 +15,9 @@ class Graphical():
     def draw(self):
         self.img = np.zeros((self.space.size[1], self.space.size[0], 3), dtype=np.uint8)
         for obj in self.objects:
-            npoly = obj.translate_poly()
-            cv2.polylines(self.img, [npoly], True, obj.color, thickness=1)
+            if obj.is_onscreen():
+                npoly = obj.translate_poly()
+                cv2.polylines(self.img, [npoly], True, obj.color, thickness=1)
 
     def display(self, n=1):
         cv2.imshow('img', cv2.flip(self.img, 0)) # show vertically flipped image
